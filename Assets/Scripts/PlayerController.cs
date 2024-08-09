@@ -58,7 +58,7 @@ public class PlayerController : MonoBehaviour
         Vector2 lookDirection = mousePos - rb.position;
         //Debug.Log(lookDirection);
         float angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg - 90;
-        Debug.Log(angle);
+        //Debug.Log(angle);
         rb.MoveRotation(angle);
         //Debug.Log(rb.velocity);
         //Debug.Log(movementInput);
