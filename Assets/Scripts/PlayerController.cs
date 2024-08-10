@@ -18,11 +18,13 @@ public class PlayerController : MonoBehaviour
 
     [SerializeField] private Camera cam;
 
+
     // Start is called before the first frame update
     private void Awake()
     {
         rb = GetComponent<Rigidbody2D>();
         playerControls = new PlayerControls();
+
     }
 
     private void Start()
@@ -53,28 +55,34 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        
+
     }
 
     // Update is called once per frame
     private void FixedUpdate()
     {
         rb.velocity = new Vector2(movementInput.x * speed, movementInput.y * speed);
-        
-        Vector2 lookDirection = mousePos - rb.position;
-        //Debug.Log(lookDirection);
-        float angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg - 90;
-        //Debug.Log(angle);
-        rb.MoveRotation(angle);
-        //Debug.Log(rb.velocity);
-        //Debug.Log(movementInput);
 
+        if (playerControls.Gameplay.MousePosition.WasPerformedThisFrame())
+        {
 
-        // Only rotate if there is input from the right stick
-        //if (lookInput.sqrMagnitude > 0.1f)
-        //{
-            RotateTowards(lookInput);
-        //}
+            Vector2 lookDirection = mousePos - rb.position;
+            //Debug.Log(lookDirection);
+            float angle = Mathf.Atan2(lookDirection.y, lookDirection.x) * Mathf.Rad2Deg - 90;
+            //Debug.Log(angle);
+            rb.MoveRotation(angle);
+            //Debug.Log(rb.velocity);
+            //Debug.Log(movementInput);
+        }
+
+        if (playerControls.Gameplay.Look.WasPerformedThisFrame())
+        {
+            // Only rotate if there is input from the right stick
+            if (lookInput.sqrMagnitude > 0.1f)
+            {
+                RotateTowards(lookInput);
+            }
+        }
     }
 
     private void OnMovement(InputAction.CallbackContext ctx)
@@ -100,7 +108,7 @@ public class PlayerController : MonoBehaviour
     {
         // Calculate the angle in degrees
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg - 90;
-        Debug.Log(angle);
+        //Debug.Log(angle);
 
         // Apply rotation
         Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
