@@ -20,6 +20,13 @@ public class PlayerController : MonoBehaviour
 
     private Camera cam;
 
+    public GameObject bulletPrefab;
+    public Transform firepoint;
+    public float fireforce;
+
+    private float fireRate = 1.0f;
+    private float nextFire;
+
     private void Awake()
     {
         // Get the components of Unity input system
@@ -43,6 +50,9 @@ public class PlayerController : MonoBehaviour
 
         // On enable, Perform right stick aim 
         playerControls.Gameplay.Look.performed += OnLook;
+
+        playerControls.Gameplay.Fire.performed += OnFire;
+        playerControls.Gameplay.Fire.canceled += OnFire;
     }
 
     private void OnDisable()
@@ -54,6 +64,14 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Movement.performed -= OnMovement;
         playerControls.Gameplay.Movement.canceled -= OnMovement;
 
+        playerControls.Gameplay.Fire.performed -= OnFire;
+        playerControls.Gameplay.Fire.canceled -= OnFire;
+
+    }
+
+    private void Update()
+    {
+        
     }
 
     private void FixedUpdate()
@@ -106,10 +124,9 @@ public class PlayerController : MonoBehaviour
         if (playerControls.Gameplay.Look.WasPerformedThisFrame())
         {
             // Only rotate if there is input from the right stick
-            if (lookInput.sqrMagnitude > 0.1f)
-            {
-                RotateTowards(lookInput);
-            }
+
+            RotateTowards(lookInput);
+            FireBullet();
 
             // Cursor is invisible and locked
             Cursor.visible = false;
@@ -125,5 +142,26 @@ public class PlayerController : MonoBehaviour
         // Apply rotation
         Quaternion targetRotation = Quaternion.Euler(0, 0, angle);
         transform.rotation = Quaternion.RotateTowards(transform.rotation, targetRotation, rotationSpeed * Time.deltaTime);
+    }
+
+    private void OnFire(InputAction.CallbackContext ctx)
+    {
+        if (playerControls.Gameplay.Fire.WasPerformedThisFrame())
+        {
+            if (ctx.performed && Time.time > nextFire)
+            {
+                nextFire = Time.time + fireRate;
+                FireBullet();
+            }
+        }
+    }
+
+    private void FireBullet()
+    {
+        Debug.Log("Gun was fired");
+        GameObject bullet = Instantiate(bulletPrefab, firepoint.position, firepoint.rotation);
+        bullet.GetComponent<Rigidbody2D>().AddForce(firepoint.up * fireforce, ForceMode2D.Impulse);
+
+        Destroy(bullet, 0.2f);
     }
 }
