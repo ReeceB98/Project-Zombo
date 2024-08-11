@@ -24,8 +24,11 @@ public class PlayerController : MonoBehaviour
     public Transform firepoint;
     public float fireforce;
 
-    private float fireRate = 1.0f;
+    private float fireRate = 0.5f;
     private float nextFire;
+
+    bool isHeld = false;
+    
 
     private void Awake()
     {
@@ -50,6 +53,7 @@ public class PlayerController : MonoBehaviour
 
         // On enable, Perform right stick aim 
         playerControls.Gameplay.Look.performed += OnLook;
+        playerControls.Gameplay.Look.canceled += OnLook;
 
         playerControls.Gameplay.Fire.performed += OnFire;
         playerControls.Gameplay.Fire.canceled += OnFire;
@@ -71,7 +75,13 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        
+        if (isHeld && Time.time > nextFire)
+        {
+            nextFire = Time.time + fireRate;
+            FireBullet();
+        }
+
+        Debug.Log(lookInput.sqrMagnitude);
     }
 
     private void FixedUpdate()
@@ -116,6 +126,15 @@ public class PlayerController : MonoBehaviour
     private void OnLook(InputAction.CallbackContext ctx)
     {
         lookInput = ctx.ReadValue<Vector2>();
+
+        if (ctx.performed)
+        {
+            isHeld = true;
+        }
+        else if (ctx.canceled)
+        {
+            isHeld = false;
+        }
     }
 
     private void SetLook()
@@ -124,9 +143,10 @@ public class PlayerController : MonoBehaviour
         if (playerControls.Gameplay.Look.WasPerformedThisFrame())
         {
             // Only rotate if there is input from the right stick
-
-            RotateTowards(lookInput);
-            FireBullet();
+            if (lookInput.sqrMagnitude > 0.1f)
+            {
+                RotateTowards(lookInput);
+            }
 
             // Cursor is invisible and locked
             Cursor.visible = false;
@@ -146,19 +166,22 @@ public class PlayerController : MonoBehaviour
 
     private void OnFire(InputAction.CallbackContext ctx)
     {
-        if (playerControls.Gameplay.Fire.WasPerformedThisFrame())
+        if (ctx.performed /*&& Time.time > nextFire*/)
         {
-            if (ctx.performed && Time.time > nextFire)
-            {
-                nextFire = Time.time + fireRate;
-                FireBullet();
-            }
+            //nextFire = Time.time + fireRate;
+            isHeld = true;
+
         }
+        else if (ctx.canceled)
+        {
+            isHeld = false;
+        }
+
     }
 
     private void FireBullet()
     {
-        Debug.Log("Gun was fired");
+        //Debug.Log("Gun was fired");
         GameObject bullet = Instantiate(bulletPrefab, firepoint.position, firepoint.rotation);
         bullet.GetComponent<Rigidbody2D>().AddForce(firepoint.up * fireforce, ForceMode2D.Impulse);
 
