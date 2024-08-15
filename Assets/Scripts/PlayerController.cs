@@ -68,6 +68,9 @@ public class PlayerController : MonoBehaviour
         // On enable, Perform shooting
         playerControls.Gameplay.Fire.performed += OnFire;
         playerControls.Gameplay.Fire.canceled += OnFire;
+
+        playerControls.Gameplay.Sprint.performed += OnSprint;
+        playerControls.Gameplay.Sprint.canceled += OnSprint;
     }
 
     private void OnDisable()
@@ -82,6 +85,9 @@ public class PlayerController : MonoBehaviour
         // On diable, perform and cancel shooting
         playerControls.Gameplay.Fire.performed -= OnFire;
         playerControls.Gameplay.Fire.canceled -= OnFire;
+
+        playerControls.Gameplay.Sprint.performed -= OnSprint;
+        playerControls.Gameplay.Sprint.canceled -= OnSprint;
 
     }
 
@@ -121,6 +127,30 @@ public class PlayerController : MonoBehaviour
     {
         // Player movment calculation
         rb.velocity = new Vector2(movementInput.x * speed, movementInput.y * speed);
+    }
+
+    private void OnSprint(InputAction.CallbackContext ctx)
+    {
+        if (ctx.performed)
+        {
+            //anim.SetFloat("Walking", movementInput.sqrMagnitude);
+            speed *= 2;
+            anim.SetBool("IsWalking", false);
+            anim.SetBool("IsRunning", true);
+        }
+        else if (ctx.canceled)
+        {
+            //anim.SetFloat("Walking", movementInput.sqrMagnitude);
+            speed = 5;
+            anim.SetBool("IsWalking", true);
+            anim.SetBool("IsRunning", false);
+        }
+    }
+
+    private void SetSprint()
+    {
+        // Player movment calculation
+        rb.velocity = new Vector2(movementInput.x * speed * 2.0f, movementInput.y * speed * 2.0f);
     }
 
     private void OnMousePosition(InputAction.CallbackContext ctx)
