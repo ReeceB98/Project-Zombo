@@ -69,6 +69,7 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Fire.performed += OnFire;
         playerControls.Gameplay.Fire.canceled += OnFire;
 
+        // On enable, Perform sprint
         playerControls.Gameplay.Sprint.performed += OnSprint;
         playerControls.Gameplay.Sprint.canceled += OnSprint;
     }
@@ -82,10 +83,11 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Movement.performed -= OnMovement;
         playerControls.Gameplay.Movement.canceled -= OnMovement;
 
-        // On diable, perform and cancel shooting
+        // On disable, perform and cancel shooting
         playerControls.Gameplay.Fire.performed -= OnFire;
         playerControls.Gameplay.Fire.canceled -= OnFire;
 
+        // On disable, perform and cancel sprint
         playerControls.Gameplay.Sprint.performed -= OnSprint;
         playerControls.Gameplay.Sprint.canceled -= OnSprint;
 
@@ -131,26 +133,19 @@ public class PlayerController : MonoBehaviour
 
     private void OnSprint(InputAction.CallbackContext ctx)
     {
+        // Calculation to perform the sprint when player is moving
         if (ctx.performed)
         {
-            //anim.SetFloat("Walking", movementInput.sqrMagnitude);
             speed *= 2;
             anim.SetBool("IsWalking", false);
             anim.SetBool("IsRunning", true);
         }
         else if (ctx.canceled)
         {
-            //anim.SetFloat("Walking", movementInput.sqrMagnitude);
             speed = 5;
             anim.SetBool("IsWalking", true);
             anim.SetBool("IsRunning", false);
         }
-    }
-
-    private void SetSprint()
-    {
-        // Player movment calculation
-        rb.velocity = new Vector2(movementInput.x * speed * 2.0f, movementInput.y * speed * 2.0f);
     }
 
     private void OnMousePosition(InputAction.CallbackContext ctx)
@@ -240,12 +235,14 @@ public class PlayerController : MonoBehaviour
             isHeld = true;
             anim.SetBool("IsShooting", true);
             anim.SetBool("IsIdle", false);
+            GetMuzzleFlash(true);
         }
         else if (ctx.canceled)
         {
             isHeld = false;
             anim.SetBool("IsShooting", false);
             anim.SetBool("IsIdle", true);
+            GetMuzzleFlash(false);
         }
 
         // Left mouse button shooting animations when moving
@@ -264,10 +261,22 @@ public class PlayerController : MonoBehaviour
 
     private void FireBullet()
     {
-        //Debug.Log("Gun was fired");
         GameObject bullet = Instantiate(bulletPrefab, firepoint.position, firepoint.rotation);
         bullet.GetComponent<Rigidbody2D>().AddForce(firepoint.up * fireforce, ForceMode2D.Impulse);
+        //SetMuzzleFlash();
 
         Destroy(bullet, 0.2f);
+    }
+
+    private void GetMuzzleFlash(bool isPlaying)
+    {
+        if (isPlaying)
+        {
+            anim.Play("MuzzleFlash");
+        }
+        else
+        {
+            anim.Play("Any State");
+        }
     }
 }
