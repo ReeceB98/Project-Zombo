@@ -617,6 +617,9 @@ MonoBehaviour:
   bulletPrefab: {fileID: 5294704655048476457, guid: 9a9210f3d366ff246bb74cedc7def01d, type: 3}
   firepoint: {fileID: 4073467448282412010}
   fireforce: 20
+  maxAmmo: 10
+  currentAmmo: 0
+  reloadTime: 1
 --- !u!50 &8787017570425729841
 Rigidbody2D:
   serializedVersion: 4

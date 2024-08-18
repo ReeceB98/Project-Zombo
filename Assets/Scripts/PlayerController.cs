@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
@@ -26,6 +27,10 @@ public class PlayerController : MonoBehaviour
     public float fireforce;
     private float fireRate = 0.5f;
     private float nextFire;
+    [SerializeField] private int maxAmmo = 10;
+    [SerializeField] private int currentAmmo;
+    [SerializeField] private float reloadTime = 2.0f;
+    private bool isReloading;
 
     // Condition to hold an input down
     bool isHeld = false;
@@ -34,6 +39,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
 
     private AudioSource audioSource;
+    
 
     private void Awake()
     {
@@ -50,6 +56,7 @@ public class PlayerController : MonoBehaviour
     {
         // Start with idle animation
         anim.Play("PlayerIdle");
+        currentAmmo = maxAmmo;
     }
 
     private void OnEnable()
@@ -75,6 +82,9 @@ public class PlayerController : MonoBehaviour
         // On enable, Perform sprint
         playerControls.Gameplay.Sprint.performed += OnSprint;
         playerControls.Gameplay.Sprint.canceled += OnSprint;
+
+        ///playerControls.Gameplay.Reload.performed += OnReload;
+        //playerControls.Gameplay.Reload.canceled += OnReload;
     }
 
     private void OnDisable()
@@ -94,15 +104,29 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Sprint.performed -= OnSprint;
         playerControls.Gameplay.Sprint.canceled -= OnSprint;
 
+        //playerControls.Gameplay.Reload.performed -= OnReload;
+        //playerControls.Gameplay.Reload.canceled -= OnReload;
+
     }
 
     private void Update()
     {
+        if (isReloading)
+        {
+            return;
+        }
         // Shoot weapon with a rate of fire
         if (isHeld && Time.time > nextFire)
         {
             nextFire = Time.time + fireRate;
             FireBullet();
+            currentAmmo--;
+        }
+
+        if (currentAmmo <= 0)
+        {
+            StartCoroutine(Reload());
+            return;
         }
     }
 
@@ -268,5 +292,31 @@ public class PlayerController : MonoBehaviour
         audioSource.Play();
 
         Destroy(bullet, 0.5f);
+    }
+
+    //private void OnReload(InputAction.CallbackContext ctx)
+    //{
+    //    //if (ctx.performed)
+    //    //{
+    //        if (currentAmmo <= 0)
+    //        {
+    //            if (ctx.performed)
+    //            {
+    //                StartCoroutine(Reload());
+    //                return;
+    //            }
+    //        }
+    //    //}
+    //}
+
+    private IEnumerator Reload()
+    {
+        isReloading = true;
+        Debug.Log("Reloading...");
+        playerControls.Gameplay.Fire.Disable();
+        yield return new WaitForSeconds(reloadTime);
+        playerControls.Gameplay.Fire.Enable();
+        currentAmmo = maxAmmo;
+        isReloading = false;
     }
 }
