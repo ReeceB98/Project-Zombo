@@ -33,6 +33,8 @@ public class PlayerController : MonoBehaviour
     // Player animations
     private Animator anim;
 
+    private AudioSource audioSource;
+
     private void Awake()
     {
         // Get the components of Unity input system
@@ -41,6 +43,7 @@ public class PlayerController : MonoBehaviour
         rb = GetComponent<Rigidbody2D>();
         cam = FindObjectOfType<Camera>();
         anim = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
     }
 
     private void Start()
@@ -235,14 +238,12 @@ public class PlayerController : MonoBehaviour
             isHeld = true;
             anim.SetBool("IsShooting", true);
             anim.SetBool("IsIdle", false);
-            GetMuzzleFlash(true);
         }
         else if (ctx.canceled)
         {
             isHeld = false;
             anim.SetBool("IsShooting", false);
             anim.SetBool("IsIdle", true);
-            GetMuzzleFlash(false);
         }
 
         // Left mouse button shooting animations when moving
@@ -264,19 +265,8 @@ public class PlayerController : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, firepoint.position, firepoint.rotation);
         bullet.GetComponent<Rigidbody2D>().AddForce(firepoint.up * fireforce, ForceMode2D.Impulse);
         //SetMuzzleFlash();
+        audioSource.Play();
 
-        Destroy(bullet, 0.2f);
-    }
-
-    private void GetMuzzleFlash(bool isPlaying)
-    {
-        if (isPlaying)
-        {
-            anim.Play("MuzzleFlash");
-        }
-        else
-        {
-            anim.Play("Any State");
-        }
+        Destroy(bullet, 0.5f);
     }
 }
