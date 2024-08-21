@@ -29,7 +29,7 @@ public class PlayerController : MonoBehaviour
     private float nextFire;
     [SerializeField] private int maxAmmo = 10;
     [SerializeField] private int currentAmmo;
-    [SerializeField] private float reloadTime = 2.0f;
+    [SerializeField] private float reloadTime = 2.813f;
     private bool isReloading;
 
     // Condition to hold an input down
@@ -39,6 +39,7 @@ public class PlayerController : MonoBehaviour
     private Animator anim;
 
     private AudioSource audioSource;
+    [SerializeField] private AudioClip sfx1, sfx2;
     
 
     private void Awake()
@@ -80,8 +81,8 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Fire.canceled += OnFire;
 
         // On enable, Perform sprint
-        playerControls.Gameplay.Sprint.performed += OnSprint;
-        playerControls.Gameplay.Sprint.canceled += OnSprint;
+        //playerControls.Gameplay.Sprint.performed += OnSprint;
+        //playerControls.Gameplay.Sprint.canceled += OnSprint;
 
         ///playerControls.Gameplay.Reload.performed += OnReload;
         //playerControls.Gameplay.Reload.canceled += OnReload;
@@ -101,8 +102,8 @@ public class PlayerController : MonoBehaviour
         playerControls.Gameplay.Fire.canceled -= OnFire;
 
         // On disable, perform and cancel sprint
-        playerControls.Gameplay.Sprint.performed -= OnSprint;
-        playerControls.Gameplay.Sprint.canceled -= OnSprint;
+        //playerControls.Gameplay.Sprint.performed -= OnSprint;
+        //playerControls.Gameplay.Sprint.canceled -= OnSprint;
 
         //playerControls.Gameplay.Reload.performed -= OnReload;
         //playerControls.Gameplay.Reload.canceled -= OnReload;
@@ -158,22 +159,22 @@ public class PlayerController : MonoBehaviour
         rb.velocity = new Vector2(movementInput.x * speed, movementInput.y * speed);
     }
 
-    private void OnSprint(InputAction.CallbackContext ctx)
-    {
-        // Calculation to perform the sprint when player is moving
-        if (ctx.performed)
-        {
-            speed *= 2;
-            anim.SetBool("IsWalking", false);
-            anim.SetBool("IsRunning", true);
-        }
-        else if (ctx.canceled)
-        {
-            speed = 5;
-            anim.SetBool("IsWalking", true);
-            anim.SetBool("IsRunning", false);
-        }
-    }
+    //private void OnSprint(InputAction.CallbackContext ctx)
+    //{
+    //    // Calculation to perform the sprint when player is moving
+    //    if (ctx.performed)
+    //    {
+    //        speed *= 2;
+    //        anim.SetBool("IsWalking", false);
+    //        anim.SetBool("IsRunning", true);
+    //    }
+    //    else if (ctx.canceled)
+    //    {
+    //        speed = 5;
+    //        anim.SetBool("IsWalking", true);
+    //        anim.SetBool("IsRunning", false);
+    //    }
+    //}
 
     private void OnMousePosition(InputAction.CallbackContext ctx)
     {
@@ -289,6 +290,7 @@ public class PlayerController : MonoBehaviour
         GameObject bullet = Instantiate(bulletPrefab, firepoint.position, firepoint.rotation);
         bullet.GetComponent<Rigidbody2D>().AddForce(firepoint.up * fireforce, ForceMode2D.Impulse);
         //SetMuzzleFlash();
+        audioSource.clip = sfx1;
         audioSource.Play();
 
         Destroy(bullet, 0.5f);
@@ -314,6 +316,8 @@ public class PlayerController : MonoBehaviour
         isReloading = true;
         Debug.Log("Reloading...");
         playerControls.Gameplay.Fire.Disable();
+        audioSource.clip = sfx2;
+        audioSource.Play();
         yield return new WaitForSeconds(reloadTime);
         playerControls.Gameplay.Fire.Enable();
         currentAmmo = maxAmmo;

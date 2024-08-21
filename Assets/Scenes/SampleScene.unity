@@ -619,7 +619,9 @@ MonoBehaviour:
   fireforce: 20
   maxAmmo: 10
   currentAmmo: 0
-  reloadTime: 1
+  reloadTime: 2.813
+  sfx1: {fileID: 8300000, guid: d39f9d8ce020813429ef18f398278516, type: 3}
+  sfx2: {fileID: 8300000, guid: f1e20a9e43c9ca74987eac222c336cdc, type: 3}
 --- !u!50 &8787017570425729841
 Rigidbody2D:
   serializedVersion: 4
@@ -678,7 +680,7 @@ AudioSource:
   m_Enabled: 1
   serializedVersion: 4
   OutputAudioMixerGroup: {fileID: 0}
-  m_audioClip: {fileID: 8300000, guid: d39f9d8ce020813429ef18f398278516, type: 3}
+  m_audioClip: {fileID: 0}
   m_PlayOnAwake: 0
   m_Volume: 1
   m_Pitch: 1
